@@ -4,10 +4,10 @@ from django.db import models
 #     symbol VARCHAR(10) PRIMARY KEY,
 #     name VARCHAR(255) NOT NULL,
 #     website VARCHAR(255),   
-#     logo VARCHAR(255)         
+#     logo VARCHAR(255),
 # );
 
-# CREATE TABLE stock_record (    
+# CREATE TABLE stockRecord (    
 #     symbol VARCHAR(10) NOT NULL,    
 #     adj_high NUMERIC NOT NULL,      
 #     adj_low NUMERIC NOT NULL,     
@@ -23,17 +23,22 @@ from django.db import models
 #     FOREIGN KEY (symbol) REFERENCES company(symbol) ON DELETE CASCADE
 # );
 
-class Company(models.Model):
+class Companies(models.Model):
     symbol = models.CharField(max_length=10, primary_key=True)
     name = models.CharField(max_length=255)
+    sector = models.CharField(max_length=50, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
     website = models.URLField(max_length=255, blank=True, null=True)
     logo = models.URLField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.name 
 
-class StockRecord(models.Model):
-    symbol = models.ForeignKey(Company, on_delete=models.CASCADE)
+    class Meta:
+        db_table = 'companies'
+
+class StockRecords(models.Model):
+    symbol = models.ForeignKey(Companies, on_delete=models.CASCADE)
     adj_high = models.DecimalField(max_digits=15, decimal_places=2)
     adj_low = models.DecimalField(max_digits=15, decimal_places=2)
     adj_close = models.DecimalField(max_digits=15, decimal_places=2)
@@ -45,8 +50,9 @@ class StockRecord(models.Model):
     date = models.DateField()
 
     class Meta:
+        db_table = 'stockrecords'
         unique_together = ('symbol', 'date')
-        verbose_name_plural = "Stock Records"
+        verbose_name_plural = 'Stock Records'
 
     def __str__(self):
-        return f"{self.symbol.symbol} - {self.date}"
+        return f'{self.symbol.symbol} - {self.date}'

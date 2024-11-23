@@ -23,6 +23,8 @@ static/
 App/
 .App/
 
+*.env
+
 # Database
 *.sqlite3
 
