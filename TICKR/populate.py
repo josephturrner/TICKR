@@ -225,3 +225,51 @@ for idx in range(len(companies)):
     else:
         print(f"No data found for company {symbol} at index {idx}.")
         raise Exception(f"No data found for {symbol} at index {idx}.")
+
+
+file_path = 'companies.txt'
+
+with open(file_path, 'r') as file:
+    companies_data = [line.strip() for line in file.readlines()]
+
+records = []
+
+for line in companies_data:
+    symbol, name = line.split('|')
+    symbol = symbol.strip()
+    name = name.strip()
+    records.append((symbol, name))
+
+try:
+    conn = psycopg2.connect(
+        dbname=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        host=DB_HOST,
+        port=DB_PORT
+    )
+    
+    # Create a cursor object to interact with the database
+    cursor = conn.cursor()
+    
+    # SQL query to insert the data into the companies table
+    insert_query = '''
+    INSERT INTO companies (symbol, name)
+    VALUES %s
+    ON CONFLICT (symbol) DO NOTHING
+    '''
+    
+    execute_values(cursor, insert_query, records)
+
+    conn.commit()
+
+    print(f"Successfully inserted {len(records)} records into the companies table.")
+    
+except psycopg2.Error as e:
+    print(f"Error inserting data: {e}")
+finally:
+    # Close the cursor and connection
+    if cursor:
+        cursor.close()
+    if conn:
+        conn.close()
