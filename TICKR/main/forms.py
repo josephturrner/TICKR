@@ -1,4 +1,14 @@
 from django import forms
 
 class CompanySearchForm(forms.Form):
-    company_symbol = forms.CharField(label='', max_length=4)
+    search_term = forms.CharField(
+        label='', 
+        max_length=25, 
+        widget=forms.TextInput(
+            attrs={
+                'class': 'text-in',
+                'placeholder': 'Search for stock...'
+            }
+        )
+    )
+
