@@ -2,24 +2,17 @@ import psycopg2
 from psycopg2.extras import execute_values
 import environ
 import requests
+import time
+import json
 
 env = environ.Env()
 environ.Env.read_env()
 
-url = f'https://api.marketstack.com/v1/eod?access_key='
-
-querystring = {'symbols':'AAPL'}
-
-response = requests.get(url, params=querystring)
-
-print(response.json())
-
-
-DB_NAME = 'tickr'
-DB_USER = 'pgadmin'
-DB_PASSWORD = 'teetwo'
-DB_HOST = 'localhost'
-DB_PORT = '5432'
+DB_NAME = env('DB_NAME')
+DB_USER = env('DB_USER')
+DB_PASSWORD = env('DB_PASSWORD')
+DB_HOST = env('DB_HOST')
+DB_PORT = env('DB_PORT')
 
 companies = [
     ('NVDA', 'NVIDIA Corporation', 'Technology', 'https://www.nvidia.com', 'NVIDIA specializes in graphics processing units (GPUs) and AI technologies, powering industries like gaming, data centers, and autonomous vehicles.', 'https://latestlogo.com/logos/nvidia/'),
@@ -74,38 +67,6 @@ companies = [
     ('ABT', 'Abbott Laboratories', 'Health Care', 'https://www.abbott.com', 'Abbott produces medical devices, diagnostics, and nutritional products to improve health and well-being.', 'https://logo.clearbit.com/abbott.com')
 ]
 
-# try:
-#     conn = psycopg2.connect(
-#         dbname=DB_NAME,
-#         user=DB_USER,
-#         password=DB_PASSWORD,
-#         host=DB_HOST,
-#         port=DB_PORT
-#     )
-#     cursor = conn.cursor()
-
-#     insert_query = '''
-#     INSERT INTO companies (symbol, name, sector, bio, website, logo)
-#     VALUES %s
-#     '''
-
-#     # Execute the insert using execute_values for batch inserts
-#     execute_values(cursor, insert_query, companies)
-
-#     # Commit the transaction
-#     conn.commit()
-
-# except psycopg2.Error as e:
-#     print(f'Error: {e}')
-# finally:
-#     # Close the database connection
-#     if cursor:
-#         cursor.close()
-#     if conn:
-#         conn.close()
-
-
-
 try:
     conn = psycopg2.connect(
         dbname=DB_NAME,
@@ -117,14 +78,12 @@ try:
     cursor = conn.cursor()
 
     insert_query = '''
-    INSERT INTO stock (symbol, name, sector, bio, website, logo)
+    INSERT INTO companies (symbol, name, sector, bio, website, logo)
     VALUES %s
     '''
 
-    # Execute the insert using execute_values for batch inserts
     execute_values(cursor, insert_query, companies)
 
-    # Commit the transaction
     conn.commit()
 
 except psycopg2.Error as e:
@@ -135,3 +94,134 @@ finally:
         cursor.close()
     if conn:
         conn.close()
+
+with open('sample_data.json', 'r') as file:
+    data = json.load(file)
+
+if 'data' in data:
+    eod = data['data']
+    
+    records = []
+    for report in eod:
+        record = (
+            report['symbol'],
+            report['adj_high'],
+            report['adj_low'],
+            report['adj_close'],
+            report['adj_open'],
+            report['adj_volume'],
+            report['split_factor'],
+            report['dividend'],
+            report['exchange'],
+            report['date']
+        )
+        records.append(record)
+
+    try:
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
+        )
+        cursor = conn.cursor()
+
+        insert_query = '''
+        INSERT INTO stockrecords (symbol_id, adj_high, adj_low, adj_close, adj_open, adj_volume, split_factor, dividend, exchange, date)
+        VALUES %s
+        '''
+
+        execute_values(cursor, insert_query, records)
+
+        conn.commit()
+    except psycopg2.Error as e:
+        print(f"Error inserting data")
+        raise Exception(f"Failed to insert data") from e
+    finally:
+        # Closing the connection each time because I am making additional api calls
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+        # Pause between requests
+        time.sleep(5)
+
+
+for idx in range(len(companies)):
+    symbol = companies[idx][0]
+
+    # Storing the 1000 days leading up to one year ago
+    # When a company is clicked it will populate the most recent year
+    # This is for efficiency of api calls on the free tier
+
+    querystring = {
+        'access_key': env('API_KEY'),
+        'symbols': symbol,
+        'limit': 1000
+    }
+    url = 'https://api.marketstack.com/v1/eod'
+    response = requests.get(url, params=querystring)
+
+    data = response.json()
+
+    # For json file
+    # with open('sample_data.json', 'r') as file:
+    # data = json.load(file)
+
+    # with open('output_data.json', 'w') as json_file:
+    #     json.dump(data, json_file, indent=4)
+
+    if 'data' in data:
+        eod = data['data']
+        
+        records = []
+        for report in eod:
+            record = (
+                report['symbol'],
+                report['adj_high'],
+                report['adj_low'],
+                report['adj_close'],
+                report['adj_open'],
+                report['adj_volume'],
+                report['split_factor'],
+                report['dividend'],
+                report['exchange'],
+                report['date']
+            )
+            records.append(record)
+
+        try:
+            conn = psycopg2.connect(
+                dbname=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD,
+                host=DB_HOST,
+                port=DB_PORT
+            )
+            cursor = conn.cursor()
+
+            insert_query = '''
+            INSERT INTO stockrecords (symbol_id, adj_high, adj_low, adj_close, adj_open, adj_volume, split_factor, dividend, exchange, date)
+            VALUES %s
+            '''
+
+            execute_values(cursor, insert_query, records)
+
+            conn.commit()
+
+        except psycopg2.Error as e:
+            print(f"Error inserting data for {symbol} at index {idx}: {e}")
+            raise Exception(f"Failed to insert data for {symbol} at index {idx}") from e
+        finally:
+
+            # Closing the connection each time because I am making additional api calls
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+            # Pause between requests
+            time.sleep(5)
+    else:
+        print(f"No data found for company {symbol} at index {idx}.")
+        raise Exception(f"No data found for {symbol} at index {idx}.")
