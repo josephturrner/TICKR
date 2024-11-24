@@ -136,8 +136,8 @@ if 'data' in data:
 
         conn.commit()
     except psycopg2.Error as e:
-        print(f"Error inserting data")
-        raise Exception(f"Failed to insert data") from e
+        print(f'Error inserting data')
+        raise Exception(f'Failed to insert data') from e
     finally:
         # Closing the connection each time because I am making additional api calls
         if cursor:
@@ -211,8 +211,8 @@ for idx in range(len(companies)):
             conn.commit()
 
         except psycopg2.Error as e:
-            print(f"Error inserting data for {symbol} at index {idx}: {e}")
-            raise Exception(f"Failed to insert data for {symbol} at index {idx}") from e
+            print(f'Error inserting data for {symbol} at index {idx}: {e}')
+            raise Exception(f'Failed to insert data for {symbol} at index {idx}') from e
         finally:
 
             # Closing the connection each time because I am making additional api calls
@@ -223,8 +223,8 @@ for idx in range(len(companies)):
             # Pause between requests
             time.sleep(5)
     else:
-        print(f"No data found for company {symbol} at index {idx}.")
-        raise Exception(f"No data found for {symbol} at index {idx}.")
+        print(f'No data found for company {symbol} at index {idx}.')
+        raise Exception(f'No data found for {symbol} at index {idx}.')
 
 
 file_path = 'companies.txt'
@@ -263,10 +263,10 @@ try:
 
     conn.commit()
 
-    print(f"Successfully inserted {len(records)} records into the companies table.")
+    print(f'Successfully inserted {len(records)} records into the companies table.')
     
 except psycopg2.Error as e:
-    print(f"Error inserting data: {e}")
+    print(f'Error inserting data: {e}')
 finally:
     # Close the cursor and connection
     if cursor:
