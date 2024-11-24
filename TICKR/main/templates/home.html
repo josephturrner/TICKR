@@ -1,18 +1,50 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-  <meta charset='UTF-8'>
-  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TICKR</title>
-  <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-  <div class='container mt-5'>
-    <div class='text-center'>
-      <h1 class='display-4'>TICKR</h1>
-      <p class='lead'>Hello, World!</p>
+  <div class="container mt-5">
+    <div class="text-center mb-4">
+      <h1 class="display-4">TICKR</h1>
+      <p class="lead">Browse Company Data</p>
+    </div>
+
+    <div class="list-group overflow-auto" style="max-height: 600px;">
+      {% for company in company_data %}
+      <div class="list-group-item d-flex align-items-center">
+        <!-- Logo -->
+        {% if company.logo %}
+        <img src="{{ company.logo }}" alt="Logo" class="me-3" style="width: 50px; height: 50px; object-fit: contain;">
+        {% else %}
+        <div class="me-3" style="width: 50px; height: 50px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+          <span class="text-muted">N/A</span>
+        </div>
+        {% endif %}
+
+        <!-- Company Info -->
+        <div class="flex-grow-1">
+          <h5 class="mb-1">{{ company.name }} <small class="text-muted">({{ company.symbol }})</small></h5>
+          {% if company.sector %}
+          <p class="mb-1"><strong>Sector:</strong> {{ company.sector }}</p>
+          {% endif %}
+          {% if company.bio %}
+          <p class="mb-2 text-muted">{{ company.bio }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Website Button -->
+        {% if company.website %}
+        <a href="{{ company.website }}" target="_blank" class="btn btn-primary btn-sm">Visit Website</a>
+        {% endif %}
+      </div>
+      {% endfor %}
     </div>
   </div>
-  <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
