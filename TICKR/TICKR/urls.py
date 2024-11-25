@@ -19,4 +19,5 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('main.urls'), name='home'),
+    # path('insights/<str:symbol>/', include('main.urls'), name='insights'),
 ]
