@@ -70,16 +70,43 @@ def insights(request, symbol):
     df['date'] = pd.to_datetime(df['date'])
 
     # Chart to display
-    fig = line(df, x='date', y='close', title=f'{symbol}', 
-                hover_data={
-                    'date': True,
-                    'dividend': True,
-                    'split_factor': True,
-                    'volume': True,
-                    'high': True,
-                    'low': True,
-                    'open': True
-                })
+    fig = line(df, x='date', y='close', title=f'{symbol}')
+    
+
+    # --prim: #e2e2e2;
+    # --sec: #2e2e2e;
+    # --col: #558e79;
+
+    fig.update_layout(
+        plot_bgcolor='#2e2e2e',
+        paper_bgcolor='black',
+        font_color='#e2e2e2',
+        margin=dict(l=0, r=0, t=32, b=0),
+        hovermode='x unified',
+        xaxis=dict(title=None, gridcolor='black'),
+        yaxis=dict(title=None, gridcolor='black', tickprefix='$'),
+        title=dict(
+            text='CLOSING PRICE',
+            font=dict(size=20),
+            x=0.5,
+            xanchor='center'
+        )
+    )
+
+    fig.update_traces(
+        line=dict(color='#558e79'),
+        hovertemplate=(
+            "<b>Date: </b> %{x}<br>" 
+            "<b>Open: </b> %{customdata[0]:.2f} USD<br>"
+            "<b>Close: </b> %{y:.2f} USD<br>"
+            "<b>High: </b> %{customdata[1]:.2f} USD<br>"
+            "<b>Low: </b> %{customdata[2]:.2f} USD<br>"
+            "<b>Volume: </b> %{customdata[3]:,} Shares<br>"
+            "<b>Dividend: </b> %{customdata[4]}<br>"
+            "<b>Split Factor: </b> %{customdata[5]}<br>"
+        ),
+        customdata=df[['open', 'high', 'low', 'volume', 'dividend', 'split_factor']].values 
+    )
 
     # Create frontend-safe type for plotly js to process
     chart = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
