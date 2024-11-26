@@ -1,0 +1,50 @@
+/* Styling for insights.html */
+
+:root {
+    --prim: #e2e2e2;
+    --sec: #2e2e2e;
+    --col: #558e79;
+}
+
+.insights-body {
+    width: 90vw;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: start;
+    color: var(--prim);
+}
+
+.insights-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    width: 40vw;
+    overflow-y: scroll;
+}
+
+.insights {
+    color: var(--prim) !important;
+}
+
+.company-logo {
+    height: 100px;
+    width: 100px;
+    object-fit: fill;
+    align-self: center;
+}
+
+.company-info {
+    margin-left: 8px;
+}
+
+.company-name {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: start;
+    align-items: center;
+    font-size: x-large;
+}
