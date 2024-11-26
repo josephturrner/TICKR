@@ -13,28 +13,22 @@
 <body>
   {% include 'components/_nav.html' %}
   <div class='insights-body'>
-    <div class='insights-container'>
-      {% if company.logo %}
-      <img src='{{ company.logo }}' alt='' class='company-logo'>
-      {% endif %}
-
-      <div class='company-info insights'>
-        <div class='company-name insights'>
-          {{ company.name }}
-          <small class='text-muted insights'>({{ company.symbol }})</small>
-        </div>
-        
-        {% if company.sector %}
-        <p class='mb-1 insights'><strong>Sector:</strong> {{ company.sector }}</p>
-        {% endif %}
-
-        {% if company.bio %}
-        <p class='mb-2 text-muted insights'>{{ company.bio }}</p>
-        {% endif %}
+    <div class='insights-company'>
+      <div class='insights-company-brand'>
+        {% if company.logo %}<img src='{{ company.logo }}' alt='' class='insights-company-logo'>{% endif %}
+        <h1 class='insights-company-name'>
+          {{ company.name }} - ({{ company.symbol }})
+          {% if company.sector %}
+          <small class='insights-sector'>{{ company.sector|upper }}</small>
+          {% endif %}
+        </h1>
       </div>
+      {% if company.bio %}
+      <p>{{ company.bio }}</p>
+      {% endif %}
     </div>
     <div class='insights-container'>
-      <div id="price-over-time"></div>
+      <div id="price-over-time" class='insights-chart'></div>
       <script type="text/javascript">
           var chartData = {{ chart|safe }};
           Plotly.newPlot('price-over-time', chartData);

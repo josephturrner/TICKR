@@ -7,11 +7,11 @@
 }
 
 .insights-body {
-    width: 90vw;
+    width: 100vw;
     margin: 0 auto;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: start;
     color: var(--prim);
 }
@@ -21,30 +21,44 @@
     flex-direction: column;
     justify-content: center;
     align-items: start;
-    width: 40vw;
+    width: 45vw;
     overflow-y: scroll;
+    overflow-x: hidden;
+}
+.insights-company {
+    width: 45vw;
 }
 
-.insights {
-    color: var(--prim) !important;
+.insights-company-brand {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-bottom: 16px;
 }
 
-.company-logo {
+.insights-company-logo {
     height: 100px;
     width: 100px;
     object-fit: fill;
     align-self: center;
 }
 
-.company-info {
-    margin-left: 8px;
-}
-
-.company-name {
+.insights-company-name {
     display: flex;
-    flex-direction: row;
-    width: 100%;
+    flex-direction: column;
     justify-content: start;
     align-items: center;
-    font-size: x-large;
+    font-size: xx-large;
+}
+
+.insights-sector {
+    font-size: large;
+    text-align: center;
+}
+
+.insights-chart {
+    width: 100%;
+    min-width: 350px;
+    aspect-ratio: 16 / 9;
+    overflow: scroll;
 }
