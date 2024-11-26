@@ -5,15 +5,18 @@ import requests
 import time
 import json
 
+# Read environment variables
 env = environ.Env()
 environ.Env.read_env()
 
+# DB connection
 DB_NAME = env('DB_NAME')
 DB_USER = env('DB_USER')
 DB_PASSWORD = env('DB_PASSWORD')
 DB_HOST = env('DB_HOST')
 DB_PORT = env('DB_PORT')
 
+# Hardcoded list to populate database
 companies = [
     ('NVDA', 'NVIDIA Corporation', 'Technology', 'https://www.nvidia.com', 'NVIDIA specializes in graphics processing units (GPUs) and AI technologies, powering industries like gaming, data centers, and autonomous vehicles.', 'https://latestlogo.com/logos/nvidia/'),
     ('AAPL', 'Apple Inc.', 'Technology', 'https://www.apple.com', 'Apple is renowned for its innovative consumer electronics, including the iPhone, Mac, and Apple Watch, and its software ecosystem like iOS and macOS.', 'https://www.apple.com/ac/structured-data/images/open_graph_logo.png?202310180743'),
@@ -68,6 +71,8 @@ companies = [
 ]
 
 try:
+
+    # Connect to db
     conn = psycopg2.connect(
         dbname=DB_NAME,
         user=DB_USER,
@@ -77,75 +82,26 @@ try:
     )
     cursor = conn.cursor()
 
+    # Populate database
     insert_query = '''
     INSERT INTO companies (symbol, name, sector, bio, website, logo)
     VALUES %s
     '''
-
     execute_values(cursor, insert_query, companies)
 
+    # Commit 
     conn.commit()
 
+# Catch error
 except psycopg2.Error as e:
     print(f'Error: {e}')
 finally:
-    # Close the database connection
+    # Close the database connection regardless of error
     if cursor:
         cursor.close()
     if conn:
         conn.close()
 
-with open('sample_data.json', 'r') as file:
-    data = json.load(file)
-
-if 'data' in data:
-    eod = data['data']
-    
-    records = []
-    for report in eod:
-        record = (
-            report['symbol'],
-            report['adj_high'],
-            report['adj_low'],
-            report['adj_close'],
-            report['adj_open'],
-            report['adj_volume'],
-            report['split_factor'],
-            report['dividend'],
-            report['exchange'],
-            report['date']
-        )
-        records.append(record)
-
-    try:
-        conn = psycopg2.connect(
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT
-        )
-        cursor = conn.cursor()
-
-        insert_query = '''
-        INSERT INTO stockrecords (symbol_id, adj_high, adj_low, adj_close, adj_open, adj_volume, split_factor, dividend, exchange, date)
-        VALUES %s
-        '''
-
-        execute_values(cursor, insert_query, records)
-
-        conn.commit()
-    except psycopg2.Error as e:
-        print(f'Error inserting data')
-        raise Exception(f'Failed to insert data') from e
-    finally:
-        # Closing the connection each time because I am making additional api calls
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-        # Pause between requests
-        time.sleep(5)
 
 
 for idx in range(len(companies)):
@@ -155,6 +111,7 @@ for idx in range(len(companies)):
     # When a company is clicked it will populate the most recent year
     # This is for efficiency of api calls on the free tier
 
+    # API call
     querystring = {
         'access_key': env('API_KEY'),
         'symbols': symbol,
@@ -162,19 +119,11 @@ for idx in range(len(companies)):
     }
     url = 'https://api.marketstack.com/v1/eod'
     response = requests.get(url, params=querystring)
-
     data = response.json()
 
-    # For json file
-    # with open('sample_data.json', 'r') as file:
-    # data = json.load(file)
-
-    # with open('output_data.json', 'w') as json_file:
-    #     json.dump(data, json_file, indent=4)
-
+    # Format data for insert query
     if 'data' in data:
         eod = data['data']
-        
         records = []
         for report in eod:
             record = (
@@ -205,9 +154,7 @@ for idx in range(len(companies)):
             INSERT INTO stockrecords (symbol_id, adj_high, adj_low, adj_close, adj_open, adj_volume, split_factor, dividend, exchange, date)
             VALUES %s
             '''
-
             execute_values(cursor, insert_query, records)
-
             conn.commit()
 
         except psycopg2.Error as e:
@@ -227,6 +174,8 @@ for idx in range(len(companies)):
         raise Exception(f'No data found for {symbol} at index {idx}.')
 
 
+
+# Used list of about 4000 companies found online to make searching possible without use of api calls
 file_path = 'companies.txt'
 
 with open(file_path, 'r') as file:
