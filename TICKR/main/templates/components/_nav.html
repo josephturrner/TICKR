@@ -1,0 +1,12 @@
+{% load static %}
+<nav class='nav'>
+    <a href="{% url 'home' %}" class='nav-home-btn'>
+      <img class='nav-home-title' src="{% static 'images/tickrLogo.svg' %}" alt=''/>
+      <span>TICKR</span>
+    </a>
+    <form class='nav-form' role='search' method='post' action="{% url 'home' %}">
+      {% csrf_token %}
+      {{ search_form.search_term }}
+      <button class='nav-form-btn' type='submit'><span>↑</span></button>
+    </form>
+  </nav>
