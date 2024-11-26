@@ -6,7 +6,7 @@ class CompanySearchForm(forms.Form):
         max_length=25, 
         widget=forms.TextInput(
             attrs={
-                'class': 'text-in',
+                'class': 'nav-form-search',
                 'placeholder': 'Search for stock...'
             }
         )

@@ -6,20 +6,11 @@
   <title>TICKR</title>
   <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css' rel='stylesheet'>
   {% load static %}
+  <link href="{% static 'css/globals.css' %}" rel="stylesheet">
   <link href="{% static 'css/home.css' %}" rel="stylesheet">
 </head>
 <body>
-  <nav class='nav'>
-    <a href="{% url 'home' %}" class='home-button'>
-      <img class='title-logo' src="{% static 'images/tickrLogo.svg' %}" alt=''/>
-      <span>TICKR</span>
-    </a>
-    <form class='nav-form' role='search' method='post'>
-      {% csrf_token %}
-      {{ search_form.search_term }}
-      <button class='nav-search-btn' type='submit'><span>↑</span></button>
-    </form>
-  </nav>
+  {% include 'components/_nav.html' %}
   <div class='company-container'>
 
     <div class='company-list' style='max-height: 550px;'>
@@ -36,11 +27,11 @@
             {{ company.name }}
             <small class='text-muted'>({{ company.symbol }})</small>
             {% if company.website %}
-            <a href='{{ company.website }}' target='_blank' class='website-link'>
-              <img src="{% static 'images/external-link.svg' %}" class='website-link-image'/>
+            <a href='{{ company.website }}' target='_blank' class='company-website link'>
+              <img src="{% static 'images/external-link.svg' %}" class='company-website-link-image'/>
             </a>
             {% endif %}
-            <a href="{% url 'insights' company.symbol %}" class='insights-link'>
+            <a href="{% url 'insights' company.symbol %}" class='company-insights link'>
               TICKR INSIGHTS
             </a>
           </div>
@@ -59,7 +50,5 @@
 
     </div>
   </div>
-
-  <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'></script>
 </body>
 </html>
