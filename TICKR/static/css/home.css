@@ -76,9 +76,11 @@
     font-size: 1.25rem;
     transition: font-size 300ms;
 }
-
 .company-insights:hover {
     font-size: 1.5rem;
+}
+.company-insights:focus {
+    outline: none;
 }
 
 .company-info {

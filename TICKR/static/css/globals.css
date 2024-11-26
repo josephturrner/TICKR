@@ -5,19 +5,14 @@
     --col: #558e79;
 }
 
-:focus {
+/* :focus {
     outline: 2px solid var(--col);
     box-shadow: none;
-}
+} */
 
 body {
     background-color: black;
     width: 100vw;
-}
-
-.link {
-    color: var(--col);
-    text-decoration: none;
 }
 
 .nav {
@@ -85,6 +80,9 @@ body {
 .nav-form-btn:hover {
     background-color: var(--prim);
     color: var(--col);
+}
+.nav-form-btn:focus {
+    outline: none;
 }
 
 .nav-home-title {
